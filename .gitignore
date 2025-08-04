@@ -50,3 +50,7 @@ COMMIT_MESSAGE.txt
 
 .llm-context/
 .kiro/
+
+# MCP configuration files
+mcp.json
+mcp.railway.json
