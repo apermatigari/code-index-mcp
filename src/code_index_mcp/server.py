@@ -109,4 +109,11 @@ def main():
 
 if __name__ == '__main__':
     sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-    main()
+    try:
+        main()
+        # Keep container alive in production
+        if os.getenv("RAILWAY"):
+            while True:
+                time.sleep(1)
+    except KeyboardInterrupt:
+        pass
