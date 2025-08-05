@@ -1,0 +1,16 @@
+{
+  "inputs": [
+    {
+      "type": "promptString",
+      "id": "project-path",
+      "description": "Path to the project you want to index",
+      "default": "."
+    }
+  ],
+  "servers": {
+    "CodeIndexer": {
+      "type": "stdio",
+      "command": "code-index-mcp"
+    }
+  }
+} 
