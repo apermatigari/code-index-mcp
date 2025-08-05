@@ -1,0 +1,20 @@
+{
+  "inputs": [
+    {
+      "type": "promptString",
+      "id": "project-path",
+      "description": "Path to the project you want to index",
+      "default": "."
+    }
+  ],
+  "servers": {
+    "CodeIndexer": {
+      "type": "stdio",
+      "command": "py",
+      "args": ["run.py"],
+      "env": {
+        "PYTHONPATH": "${workspaceFolder}/src"
+      }
+    }
+  }
+} 

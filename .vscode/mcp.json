@@ -1,0 +1,29 @@
+{
+  "inputs": [
+    {
+      "type": "promptString",
+      "id": "project-path",
+      "description": "Path to the project you want to index",
+      "default": "."
+    }
+  ],
+  "servers": {
+    "CodeIndexer": {
+      "type": "stdio",
+      "command": "docker",
+      "args": [
+        "run", 
+        "-i", 
+        "--rm", 
+        "-v", 
+        "${workspaceFolder}:/workspace", 
+        "-w", 
+        "/workspace", 
+        "code-index-mcp:latest"
+      ],
+      "env": {
+        "PYTHONPATH": "/app/src"
+      }
+    }
+  }
+} 
