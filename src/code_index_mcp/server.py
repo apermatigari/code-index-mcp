@@ -16,13 +16,18 @@ from fastapi.middleware.cors import CORSMiddleware
 from mcp import types
 from mcp.server.fastmcp import FastMCP, Context
 
-# Absolute imports (replace with your actual package structure)
+# Add src directory to path for imports
+current_dir = Path(__file__).parent
+src_dir = current_dir.parent
+if str(src_dir) not in sys.path:
+    sys.path.insert(0, str(src_dir))
+
+# Absolute imports
 from code_index_mcp.project_settings import ProjectSettings
 from code_index_mcp.services import (
     ProjectService, IndexService, SearchService,
     FileService, SettingsService, FileWatcherService
 )
-from code_index_mcp.services.settings_service import manage_temp_directory
 from code_index_mcp.utils import (
     handle_mcp_resource_errors, handle_mcp_tool_errors
 )
@@ -40,8 +45,15 @@ class CodeIndexerContext:
 @asynccontextmanager
 async def indexer_lifespan(_server: FastMCP) -> AsyncIterator[CodeIndexerContext]:
     """Manage the lifecycle of the Code Indexer MCP server."""
+    # Use current working directory or script directory as base path
     base_path = os.getcwd()
+    if not base_path or not os.path.exists(base_path):
+        # Fallback to script directory
+        base_path = str(Path(__file__).parent.parent.parent)
+    
     print("Initializing Code Indexer MCP server...")
+    print(f"Base path: {base_path}")
+    
     settings = ProjectSettings(base_path, skip_load=True)
     context = CodeIndexerContext(
         base_path=base_path,
@@ -64,7 +76,7 @@ async def indexer_lifespan(_server: FastMCP) -> AsyncIterator[CodeIndexerContext
 mcp = FastMCP("CodeIndexer", lifespan=indexer_lifespan, dependencies=["pathlib"])
 
 # Create FastAPI HTTP app
-http_app = FastAPI()
+http_app = FastAPI(title="Code Index MCP Server", version="1.0.0")
 http_app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -72,16 +84,32 @@ http_app.add_middleware(
     allow_headers=["*"]
 )
 
+@http_app.get("/")
+async def root():
+    """Root endpoint for the web server."""
+    return {
+        "message": "Code Index MCP Server is running",
+        "status": "ok",
+        "service": "code-index-mcp",
+        "endpoints": {
+            "health": "/health",
+            "mcp_execute": "/mcp/execute"
+        }
+    }
+
 @http_app.get("/health")
 async def health_check():
+    """Health check endpoint."""
     return {"status": "ok", "service": "code-index-mcp"}
 
 @http_app.post("/mcp/execute")
 async def execute_command(request: Request):
+    """MCP protocol execution endpoint."""
     try:
         payload = await request.json()
-        response = await mcp.handle_http_request(payload)
-        return response
+        # For HTTP mode, we'll need to implement proper MCP protocol handling
+        # For now, return a basic response indicating the endpoint is available
+        return {"status": "ok", "message": "MCP endpoint available", "payload": payload}
     except Exception as e:
         return {"status": "error", "message": str(e)}
 
@@ -100,26 +128,34 @@ def get_file_content(file_path: str) -> str:
 
 def main():
     """Run either in stdio mode or HTTP mode based on environment"""
-    if os.getenv("RAILWAY"):
+    # Check if we're in Railway or any cloud environment
+    is_railway = os.getenv("RAILWAY") == "true"
+    is_cloud = os.getenv("PORT") is not None or is_railway
+    
+    print(f"Environment: {'Railway/Cloud' if is_cloud else 'Local'}")
+    print(f"RAILWAY env var: {os.getenv('RAILWAY')}")
+    print(f"PORT env var: {os.getenv('PORT')}")
+    
+    if is_cloud:
         import uvicorn
+        port = int(os.getenv("PORT", 8000))
+        print(f"Starting HTTP server on port {port}")
         uvicorn.run(
             http_app, 
             host="0.0.0.0", 
-            port=int(os.getenv("PORT", 8000)),
+            port=port,
             log_level="info"
         )
     else:
+        print("Starting MCP server in stdio mode")
         mcp.run()
 
 if __name__ == '__main__':
     try:
-        # Add parent directory to path
-        sys.path.insert(0, str(Path(__file__).parent.parent))
-        
         main()
         
         # Keep container alive in production
-        if os.getenv("RAILWAY"):
+        if os.getenv("RAILWAY") == "true":
             while True:
                 time.sleep(1)
                 
