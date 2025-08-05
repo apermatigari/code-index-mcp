@@ -4,6 +4,8 @@ Code Index MCP Server with HTTP Endpoints
 
 import os
 import sys
+import time
+from pathlib import Path
 from contextlib import asynccontextmanager
 from dataclasses import dataclass, field
 from typing import AsyncIterator, Dict, Any
@@ -14,14 +16,14 @@ from fastapi.middleware.cors import CORSMiddleware
 from mcp import types
 from mcp.server.fastmcp import FastMCP, Context
 
-# Local imports
-from .project_settings import ProjectSettings
-from .services import (
+# Absolute imports (replace with your actual package structure)
+from code_index_mcp.project_settings import ProjectSettings
+from code_index_mcp.services import (
     ProjectService, IndexService, SearchService,
     FileService, SettingsService, FileWatcherService
 )
-from .services.settings_service import manage_temp_directory
-from .utils import (
+from code_index_mcp.services.settings_service import manage_temp_directory
+from code_index_mcp.utils import (
     handle_mcp_resource_errors, handle_mcp_tool_errors
 )
 
@@ -38,7 +40,7 @@ class CodeIndexerContext:
 @asynccontextmanager
 async def indexer_lifespan(_server: FastMCP) -> AsyncIterator[CodeIndexerContext]:
     """Manage the lifecycle of the Code Indexer MCP server."""
-    base_path = ""
+    base_path = os.getcwd()
     print("Initializing Code Indexer MCP server...")
     settings = ProjectSettings(base_path, skip_load=True)
     context = CodeIndexerContext(
@@ -96,24 +98,33 @@ def get_file_content(file_path: str) -> str:
     ctx = mcp.get_context()
     return FileService(ctx).get_file_content(file_path)
 
-# [PASTE ALL OTHER @mcp.resource AND @mcp.tool DECORATORS HERE]
-# Keep all your existing resource and tool functions exactly as they were
-
 def main():
     """Run either in stdio mode or HTTP mode based on environment"""
     if os.getenv("RAILWAY"):
         import uvicorn
-        uvicorn.run(http_app, host="0.0.0.0", port=int(os.getenv("PORT", 8000)))
+        uvicorn.run(
+            http_app, 
+            host="0.0.0.0", 
+            port=int(os.getenv("PORT", 8000)),
+            log_level="info"
+        )
     else:
         mcp.run()
 
 if __name__ == '__main__':
-    sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
     try:
+        # Add parent directory to path
+        sys.path.insert(0, str(Path(__file__).parent.parent))
+        
         main()
+        
         # Keep container alive in production
         if os.getenv("RAILWAY"):
             while True:
                 time.sleep(1)
+                
     except KeyboardInterrupt:
-        pass
+        print("\nServer stopped by user")
+    except Exception as e:
+        print(f"Server crashed: {str(e)}")
+        sys.exit(1)
