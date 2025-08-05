@@ -1,0 +1,9 @@
+{
+  "servers": {
+    "TestServer": {
+      "type": "stdio",
+      "command": "python",
+      "args": ["-c", "import json; import sys; print(json.dumps({'jsonrpc': '2.0', 'id': 1, 'result': {'message': 'Test server working'}})); sys.stdout.flush()"]
+    }
+  }
+} 

@@ -1,0 +1,18 @@
+{
+  // 💡 Inputs will be prompted on first server start,
+  //    then stored securely by VS Code.
+  "inputs": [
+    {
+      "type": "promptString",
+      "id": "project-path",
+      "description": "Path to the project you want to index",
+      "default": "."
+    }
+  ],
+  "servers": {
+    // Code Index MCP Server deployed on Railway
+    "CodeIndexer": {
+      "url": "https://code-index-mcp-production.up.railway.app/mcp/execute"
+    }
+  }
+} 

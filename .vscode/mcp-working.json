@@ -1,0 +1,17 @@
+{
+  "inputs": [
+    {
+      "type": "promptString",
+      "id": "project-path",
+      "description": "Path to the project you want to index",
+      "default": "."
+    }
+  ],
+  "servers": {
+    "CodeIndexer": {
+      "type": "stdio",
+      "command": "python",
+      "args": ["-c", "import sys; sys.path.insert(0, 'src'); from code_index_mcp.server import main; main()"]
+    }
+  }
+} 

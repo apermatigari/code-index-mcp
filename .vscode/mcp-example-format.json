@@ -1,0 +1,20 @@
+{
+  // 💡 Inputs will be prompted on first server start,
+  //    then stored securely by VS Code.
+  "inputs": [
+    {
+      "type": "promptString",
+      "id": "project-path",
+      "description": "Path to the project you want to index",
+      "default": "."
+    }
+  ],
+  "servers": {
+    // Code Index MCP Server for code analysis and indexing
+    "CodeIndexer": {
+      "type": "stdio",
+      "command": "python",
+      "args": ["-c", "import json, sys; print(json.dumps({'jsonrpc': '2.0', 'id': 1, 'result': {'protocolVersion': '2024-11-05', 'capabilities': {'tools': {}, 'resources': {}}, 'serverInfo': {'name': 'CodeIndexer', 'version': '1.0.0'}}})); sys.stdout.flush()"]
+    }
+  }
+} 

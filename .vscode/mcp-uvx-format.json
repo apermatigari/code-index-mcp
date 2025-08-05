@@ -1,0 +1,20 @@
+{
+  // 💡 Inputs will be prompted on first server start,
+  //    then stored securely by VS Code.
+  "inputs": [
+    {
+      "type": "promptString",
+      "id": "project-path",
+      "description": "Path to the project you want to index",
+      "default": "."
+    }
+  ],
+  "servers": {
+    // Code Index MCP Server using uvx
+    "CodeIndexer": {
+      "type": "stdio",
+      "command": "uvx",
+      "args": ["code-index-mcp"]
+    }
+  }
+} 

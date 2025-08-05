@@ -1,0 +1,9 @@
+{
+  "servers": {
+    "CodeIndexer": {
+      "type": "stdio",
+      "command": "python",
+      "args": ["src/code_index_mcp/proper_mcp_server.py"]
+    }
+  }
+} 

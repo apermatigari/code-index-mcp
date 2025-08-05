@@ -1,0 +1,9 @@
+{
+  "servers": {
+    "CodeIndexer": {
+      "type": "stdio",
+      "command": "python",
+      "args": ["-c", "print('Hello from MCP server'); import sys; sys.stdout.flush()"]
+    }
+  }
+} 

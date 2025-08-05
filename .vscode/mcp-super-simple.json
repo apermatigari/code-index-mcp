@@ -1,0 +1,9 @@
+{
+  "servers": {
+    "EchoServer": {
+      "type": "stdio",
+      "command": "python",
+      "args": ["-c", "import json, sys; print(json.dumps({'jsonrpc': '2.0', 'id': 1, 'result': {'protocolVersion': '2024-11-05', 'capabilities': {'tools': {}, 'resources': {}}, 'serverInfo': {'name': 'EchoServer', 'version': '1.0.0'}}})); sys.stdout.flush()"]
+    }
+  }
+} 
